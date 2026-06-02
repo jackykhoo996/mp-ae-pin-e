@@ -115,7 +115,7 @@ export default function Home() {
 
         {errorMsg && <div style={styles.errorBubble}>{errorMsg}</div>}
 
-        {/* 步骤 1：输入手机号（包含全新+971国家代码格子） */}
+        {/* 步骤 1：输入手机号（+971格子已移至最右侧，完美支持 RTL） */}
         {step === 1 && (
           <div style={styles.formSection}>
             <div style={styles.phoneInputContainer}>
@@ -294,9 +294,10 @@ const styles = {
     boxSizing: "border-box"
   },
   
-  /* 🔥 全新设计的手机号组合框样式，彻底对齐 */
+  /* 🔥 使用 row-reverse 完美的把国家代码倒序排版到最右侧 */
   phoneInputContainer: {
     display: "flex",
+    flexDirection: "row-reverse", 
     width: "100%",
     height: "54px",
     borderRadius: "14px",
@@ -310,12 +311,12 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "#1e293b", // 给+971格子一个高级深灰底色
+    background: "#1e293b", 
     color: "#fff",
     fontSize: "16px",
     fontWeight: "bold",
     padding: "0 16px",
-    borderRight: "1px solid #334155",
+    borderLeft: "1px solid #334155", // 边框改为左边分割
     userSelect: "none"
   },
   inputField: {
@@ -327,7 +328,8 @@ const styles = {
     fontSize: "18px",
     outline: "none",
     fontWeight: "bold",
-    letterSpacing: "1px"
+    letterSpacing: "1px",
+    textAlign: "right" // 配合 RTL 习惯，输入的数字从右向左延伸
   },
 
   pinInput: {

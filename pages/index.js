@@ -37,23 +37,24 @@ export default function Home() {
     setLoading(true);
     setErrorMsg("");
 
-    // 🛡️ 核心终极防御清洗逻辑：彻底干掉用户重复输入的各种区号
+    // 🛡️ 终极强力清洗逻辑
     let cleanMsisdn = msisdn.trim();
     
-    // 1. 去掉前面的 00
-    if (cleanMsisdn.startsWith("00")) {
-      cleanMsisdn = cleanMsisdn.substring(2);
-    }
-    // 2. 去掉开头的单个 0
-    if (cleanMsisdn.startsWith("0")) {
-      cleanMsisdn = cleanMsisdn.substring(1);
-    }
-    // 3. 极其重要：如果用户在输入框里又手抖打了 97156... 帮他把开头的 971 抠掉！
+    // 1. 去掉前缀的 00 或 0
+    if (cleanMsisdn.startsWith("00")) cleanMsisdn = cleanMsisdn.substring(2);
+    if (cleanMsisdn.startsWith("0")) cleanMsisdn = cleanMsisdn.substring(1);
+    
+    // 2. 如果用户开头带了 971，删掉开头
     if (cleanMsisdn.startsWith("971")) {
       cleanMsisdn = cleanMsisdn.substring(3);
     }
 
-    // 4. 重新格式化为广告主 CP 100% 接受的标准 9715xxxxxxxx 格式
+    // 3. ✨核心新增：如果用户把 971 错输在号码中间（例如 56971xxxx），直接把中间的 971 抹掉！
+    if (cleanMsisdn.includes("971")) {
+      cleanMsisdn = cleanMsisdn.replace("971", "");
+    }
+
+    // 4. 组装发给上游接口的标准格式 9715xxxxxxxx
     const finalMsisdn = "971" + cleanMsisdn;
 
     try {
@@ -150,7 +151,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 步骤 2：输入 PIN 验证码 */}
+        {/* 步骤 2：输入 PIN */}
         {step === 2 && (
           <div style={styles.formSection}>
             <div style={styles.successAlert}>
@@ -193,8 +194,7 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
     padding: "60px 15px 40px 15px",
-    boxSizing: "border-box",
-    position: "relative"
+    boxSizing: "border-box"
   },
   liveBanner: {
     position: "fixed",
@@ -209,8 +209,7 @@ const styles = {
     alignItems: "center",
     fontSize: "14px",
     fontWeight: "bold",
-    zIndex: 100,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.3)"
+    zIndex: 100
   },
   pulseDot: {
     width: "6px",
@@ -228,7 +227,6 @@ const styles = {
     padding: "24px 20px",
     textAlign: "center",
     border: "1px solid #1a1a1a",
-    boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
     boxSizing: "border-box"
   },
   topBadge: {
@@ -304,8 +302,6 @@ const styles = {
     alignItems: "center",
     boxSizing: "border-box"
   },
-  
-  /* 恢复标准英文从左到右排版，确保完美对齐 */
   phoneInputContainer: {
     display: "flex",
     width: "100%",
@@ -315,7 +311,8 @@ const styles = {
     background: "#0f172a",
     overflow: "hidden",
     marginBottom: "14px",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
+    flexDirection: "row" /* 强制保持从左往右 */
   },
   countryCodeBox: {
     display: "flex",
@@ -341,7 +338,6 @@ const styles = {
     letterSpacing: "1px",
     textAlign: "left"
   },
-
   pinInput: {
     width: "100%",
     height: "54px",
@@ -369,8 +365,7 @@ const styles = {
     fontWeight: "bold",
     cursor: "pointer",
     marginBottom: "12px",
-    boxSizing: "border-box",
-    boxShadow: "0 4px 15px rgba(234,179,8,0.2)"
+    boxSizing: "border-box"
   },
   buttonVerify: {
     width: "100%",
